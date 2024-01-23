@@ -6,7 +6,7 @@ from classes.data_inklinometers import DataInklinometers
 from classes.json_module import JSONModule
 from classes.trackbars import Trackbars
 from classes.camera import Camera
-from classes.inklinometer import Inklinometer
+from classes.level import Level
 from utils.config import options_dict
 from classes.read_file import ReaderTxt
 from classes.convert_file_txt_to_dict2 import ConverterTxtToDict
@@ -25,19 +25,21 @@ def find(pattern, path):
                 result.append(os.path.join(root, name))
     return result
 
+
 trackbars = Trackbars("data/data.json")
 
-def processing(file_name, text_info):
 
+def processing(file_name, text_info):
     reader_txt = ReaderTxt("data/data_port_spy_2.txt")
     json_module = JSONModule('data/variables.json')
     center_bubble = 0
     camera = Camera(f"data/{file_name}")
-    inklinometer = Inklinometer(camera=camera, trackbars=trackbars, options=options_dict)
+    level = Level(camera=camera, trackbars=trackbars, options=options_dict)
 
     # Начальное время (когда было записано видео)
     start_time = creation_date(f"data/{file_name}")
-    start_time = start_time.replace(microsecond=0)
+    # start_time = start_time.replace(microsecond=0)
+    start_time = start_time.replace(microsecond=0, hour=16, minute=36, second=10, month=9, day=1, year=2023)
 
     # Создание таймера
     t = Timer()
@@ -72,42 +74,42 @@ def processing(file_name, text_info):
 
         # Запуск модуля обработки лазерного инклинометра
         try:
-            inklinometer.main()
+            level.main()
         except:
             break
         # Сохранение значение ползунков
         trackbars.save()
 
-        datetime_now_inklinometer = str(f"{start_time + timedelta(seconds=int(seconds_passed)+i/camera.get_fps())}")
+        datetime_now_inklinometer = str(f"{start_time + timedelta(seconds=int(seconds_passed) + i / camera.get_fps())}")
 
         # Запись данных в txt файл
         with open(f'data/{file_name}.txt', 'a+') as f:
-            f.write(f'{datetime_now_inklinometer}\t{inklinometer.center_bubble_x}\t{inklinometer.center_bubble_y}\n')
+            f.write(f'{datetime_now_inklinometer}\t{level.center_bubble_x}\t{level.center_bubble_y}\n')
 
         # Выводить значения положения лазерного пятна, когда они не равны нулю
-        if inklinometer.center_bubble != 0:
-            center_bubble = inklinometer.center_bubble
+        if level.center_bubble != 0:
+            center_bubble = level.center_bubble
 
         # Создание информационного окна
         winfo2 = np.zeros((512, 512, 3), np.uint8)
-        cv2.putText(winfo2, f"Лазерное пятно = {center_bubble}px", (0, 150-100), cv2.FONT_HERSHEY_COMPLEX, 0.8,
+        cv2.putText(winfo2, f"Лазерное пятно = {center_bubble}px", (0, 150 - 100), cv2.FONT_HERSHEY_COMPLEX, 0.8,
                     (0, 150, 0),
                     2)
         if trackbars.horizontal_count == 0:
-            cv2.putText(winfo2, f"Отсчет по оси y", (0, 180-100), cv2.FONT_HERSHEY_COMPLEX, 0.8,
+            cv2.putText(winfo2, f"Отсчет по оси y", (0, 180 - 100), cv2.FONT_HERSHEY_COMPLEX, 0.8,
                         (0, 150, 0),
                         2)
-            cv2.putText(winfo2, "/|\\", (250 + 0, 200-100), cv2.FONT_HERSHEY_COMPLEX, 0.8,
+            cv2.putText(winfo2, "/|\\", (250 + 0, 200 - 100), cv2.FONT_HERSHEY_COMPLEX, 0.8,
                         (0, 150, 0),
                         2)
-            cv2.putText(winfo2, " |", (250 + 5, 220-100), cv2.FONT_HERSHEY_COMPLEX, 0.8,
+            cv2.putText(winfo2, " |", (250 + 5, 220 - 100), cv2.FONT_HERSHEY_COMPLEX, 0.8,
                         (0, 150, 0),
                         2)
-            cv2.putText(winfo2, "\\|/", (250 + 0, 240-100), cv2.FONT_HERSHEY_COMPLEX, 0.8,
+            cv2.putText(winfo2, "\\|/", (250 + 0, 240 - 100), cv2.FONT_HERSHEY_COMPLEX, 0.8,
                         (0, 150, 0),
                         2)
         else:
-            cv2.putText(winfo2, f"Отсчет по оси x <--->", (0, 180-100), cv2.FONT_HERSHEY_COMPLEX, 0.8,
+            cv2.putText(winfo2, f"Отсчет по оси x <--->", (0, 180 - 100), cv2.FONT_HERSHEY_COMPLEX, 0.8,
                         (0, 150, 0),
                         2)
         cv2.putText(winfo2,

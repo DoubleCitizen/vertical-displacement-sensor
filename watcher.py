@@ -1,4 +1,5 @@
 import collections
+import os
 from datetime import datetime, timedelta
 
 import numpy as np
@@ -6,7 +7,7 @@ import numpy as np
 from classes.data_inklinometers import DataInklinometers
 from classes.trackbars import Trackbars
 from classes.camera import Camera
-from classes.inklinometer import Inklinometer
+from classes.level import Level
 from utils.config import options_dict
 from classes.read_file import ReaderTxt
 from classes.convert_file_txt_to_dict2 import ConverterTxtToDict
@@ -14,11 +15,13 @@ from classes.json_module import JSONModule
 from classes.save_inklinometer_data import SaveInlinometerData
 import cv2
 
+
+# print(os.path.abspath(__file__))
 trackbars = Trackbars("data/data.json")
 # camera = Camera("output_video2.avi")
-camera = Camera("data/1_2023-08-31_11-23-11.mp4")
+camera = Camera("data/1/TRIAL____________GH010022.mp4")
 # camera = Camera(1)
-inklinometer = Inklinometer(camera=camera, trackbars=trackbars, options=options_dict)
+level = Level(camera=camera, trackbars=trackbars, options=options_dict)
 
 
 def merge_twoDict(a, b):  # define the merge_twoDict() function
@@ -35,12 +38,12 @@ center_bubble = 0
 while True:
 
     data = converter_txt_to_dict.convert(data=reader_txt.read())
-    inklinometer.main()
+    level.main()
     trackbars.save()
 
     winfo = np.zeros((512, 512, 3), np.uint8)
-    if inklinometer.center_bubble != 0:
-        center_bubble = inklinometer.center_bubble
+    if level.center_bubble != 0:
+        center_bubble = level.center_bubble
 
 
     winfo2 = np.zeros((512, 512, 3), np.uint8)

@@ -6,7 +6,7 @@ from classes.data_inklinometers import DataInklinometers
 from classes.json_module import JSONModule
 from classes.trackbars import Trackbars
 from classes.camera import Camera
-from classes.inklinometer import Inklinometer
+from classes.level import Level
 from utils.config import options_dict
 from classes.read_file import ReaderTxt
 from classes.convert_file_txt_to_dict2 import ConverterTxtToDict
@@ -20,7 +20,7 @@ trackbars = Trackbars("data/data.json")
 # camera = Camera("output_video2.avi")
 camera = Camera(f'data/{file_name}')
 name_of_window = "Test"
-inklinometer = Inklinometer(camera=camera, trackbars=trackbars, options=options_dict)
+level = Level(camera=camera, trackbars=trackbars, options=options_dict)
 json_module = JSONModule('data/variables.json')
 
 
@@ -71,12 +71,12 @@ while True:
 
     date_time_str_list.append(datetime_now_inklinometer)
 
-    now_dict_data[date_time_str_list[-1]] = {"CB": inklinometer.center_bubble}
+    now_dict_data[date_time_str_list[-1]] = {"CB": level.center_bubble}
 
     save_inklinometer2 = SaveInlinometerData('data/data_inklinometer_pp.json', now_dict_data)
     save_inklinometer2.save_json()
 
-    inklinometer.main()
+    level.main()
     trackbars.save()
 
     winfo = np.zeros((512, 512, 3), np.uint8)
